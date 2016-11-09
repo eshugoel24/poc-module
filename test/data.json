@@ -1,3 +1,5 @@
 { 
-    "url": "yahoo.com"
+    "baseUrl": "http://172.16.2.177:8080",
+    "deployUrl": "deploy",
+    "modelFile": "test.conf"
 }
