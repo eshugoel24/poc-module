@@ -37,23 +37,23 @@ class ModelInstaller{
     }
 
     checkModelDeployed(){
-        return _isDeployedModelExists();
+        return _isDeployedModelExists(deployedModel);
     }
 
     getDeployedModelResponse(){
-        if(_isDeployedModelExists())
+        if(_isDeployedModelExists(deployedModel))
             return deployedModel;
         return {};
     }
 
     getModelName(){
-        if(_isDeployedModelExists())
+        if(_isDeployedModelExists(deployedModel))
             return deployedModel.result.modelName;
         return "";
     }
 
     getModelDeploymentId(){
-        if(_isDeployedModelExists())
+        if(_isDeployedModelExists(deployedModel))
             return deployedModel.result.deploymentId;
         return 0;
     }
