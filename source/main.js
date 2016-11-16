@@ -6,8 +6,6 @@ import config from './config';
 import modelInstaller from './model-installer';
 import instanceManager from './instance-manager';
 
-let deployedModel = {};
-
 class Main{
     constructor(){
         
@@ -21,14 +19,12 @@ class Main{
         /*If model is already deployed, then we have to retun it back
         **Check that model is deployed or not by checking its modelName property
         */
-        if(deployedModel.hasOwnProperty("result")){
-            if(deployedModel.status === 200 && deployedModel.result.modelName !== ""){
-                return new Promise((resolve, reject)=>{
-                    return resolve(deployedModel);
-                });
-            }
+        if(modelInstaller.checkModelDeployed()){
+            return new Promise((resolve, reject)=>{
+                return resolve(modelInstaller.getDeployedModelResponse());
+            });
         }
-
+        
         if(config.CONFIG_SERVICE_URL === '')
             throw new Error('Service Url can not be empty.');
         if(config.CONFIG_DEPLOY_PATH === '')
@@ -39,7 +35,6 @@ class Main{
         return new Promise((resolve, reject)=>{
             modelInstaller.deployModel(config.CONFIG_MODEL_FILE, deployUrl)
             .then(response=>{
-                Object.assign(deployedModel, response);
                 return resolve(response);
             })
             .catch(error=>{
@@ -48,7 +43,36 @@ class Main{
         });
     }
 
+    /*
+    *@param instanceId, it is the value from cookie
+    */
+    start(instanceId){
+        if(!instanceId || instanceId == null)
+            instanceId = '';
+        if(config.CONFIG_SERVICE_URL === '')
+            throw new Error('Service Url can not be empty.');
+        if(config.CONFIG_CREATE_INSTANCE === '')
+            throw new Error('Create instance Url can not be empty.');
+        if(modelInstaller.getModelName() == '')
+            throw new Error('First deploy the model. There is no model deployed');
+        
+        let createInstancePath = config.CONFIG_CREATE_INSTANCE+"/"+modelInstaller.getModelName();
 
+        if(instanceId === '')
+            createInstancePath = config.CONFIG_CREATE_INSTANCE+"/"+instanceId;
+        
+        let createInstanceUrl = url.resolve(config.CONFIG_SERVICE_URL, createInstancePath);
+        
+        return new Promise((resolve, reject)=>{
+            instanceManager.createInstance(instanceId, createInstanceUrl)
+            .then(response=>{
+                return resolve(response);
+            })
+            .catch(error=>{
+                return reject(error);
+            });
+        });
+    }
 }
 
 export default new Main();
