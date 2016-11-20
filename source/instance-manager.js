@@ -9,7 +9,7 @@ class InstanceManager{
         this.restWrapper = new RestWrapper();
     }
 
-    createInstance(url){
+    createInstance(instanceId, url){
         let options = {
             data: {},
             headers: {
