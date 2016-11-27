@@ -34,14 +34,11 @@ app.get("/", (req, res)=>{
 
 app.get("/create", (req, res)=>{
     console.log("create server inside server.js");
-    let instanceId = '';
-    if(req.cookies.instance)
-        instanceId = req.cookies.instance;
-    lib.start(instanceId)
+    
+    lib.start(req, res)
     .then((response)=>{
         console.log("Process instance Id is "+response);
 
-        res.cookie('instance',response, { maxAge: 900000, httpOnly: true });
         res.set({
             'Content-Type': 'application/json'
         });
@@ -59,7 +56,7 @@ app.post("/complete", (req, res)=>{
     
     console.log("complete the askTransactionInfo task "+instanceId);
 
-    lib.completeTask(instanceId,{
+    lib.completeTask(req, res,{
         task: "askTransactionInfo",
         data: {
             "amountToTransfer": 1,

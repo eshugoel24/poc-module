@@ -6,6 +6,17 @@ import config from './config';
 import modelInstaller from './model-installer';
 import instanceManager from './instance-manager';
 import taskService from "./task-service";
+import cookie from "cookie";
+
+let getCookies = function(req){
+    var cookies = cookie.parse(req.headers.cookie || '');
+    var instanceId = "";
+    if(!cookies.instanceId || cookies.instanceId == null)
+        instanceId = '';
+    else
+        instanceId = cookies.instanceId;
+    return instanceId;
+}
 
 class Main{
     constructor(){
@@ -44,12 +55,14 @@ class Main{
         });
     }
 
-    /*
-    *@param instanceId, it is the value from cookie
+    /*This function will be use to create the instance and
+    * managed instanceId based on already created instances
+    *@params {object} req
+    *@params {obejct} res
     */
-    start(instanceId){
-        if(!instanceId || instanceId == null)
-            instanceId = '';
+    start(req, res){
+        var instanceId = getCookies(req);
+        
         if(config.CONFIG_SERVICE_URL === '')
             throw new Error('Service Url can not be empty.');
         if(config.CONFIG_CREATE_INSTANCE === '')
@@ -60,18 +73,25 @@ class Main{
         let createInstancePath = config.CONFIG_CREATE_INSTANCE+"/"+modelInstaller.getModelName();
 
         if(instanceId !== ''){
-            //createInstancePath = config.CONFIG_CREATE_INSTANCE+"/"+instanceId;
+            console.log("return old instance value");
             return new Promise((resolve, reject)=>{
+                res.setHeader('Set-Cookie', cookie.serialize('instanceId', String(instanceId), {
+                    httpOnly: true,
+                    maxAge: 60 * 60 * 24 * 7 // 1 week 
+                }));
                 return resolve(parseInt(instanceId));
             });
-        }
+        };
             
-        
         let createInstanceUrl = url.resolve(config.CONFIG_SERVICE_URL, createInstancePath);
         return new Promise((resolve, reject)=>{
             instanceManager.createInstance(instanceId, createInstanceUrl)
             .then(response=>{
                 console.log("instance created and response id "+response.result.modelInstanceId);
+                res.setHeader('Set-Cookie', cookie.serialize('instanceId', String(response.result.modelInstanceId), {
+                    httpOnly: true,
+                    maxAge: 60 * 60 * 24 * 7 // 1 week 
+                }));
                 return resolve(response.result.modelInstanceId);
             })
             .catch(error=>{
@@ -80,12 +100,19 @@ class Main{
         });
     }
 
-    completeTask(instanceId, requestData){
+    /*This function will be use to mark a task as complete
+    *@params {object} req
+    *@params {obejct} res
+    *@params {object} requestData with to keys one is task and another is data
+    */
+    completeTask(req, res, requestData){
+        var instanceId = getCookies(req);
+        
         if(!requestData.task || requestData.task == "")
             throw new Error('Task name cant be empty.');
         let instancePath = "/instance/"+instanceId;
         let completeTaskUrl = url.resolve(config.CONFIG_SERVICE_URL, instancePath);
-        console.log("Complete task URL is "+completeTaskUrl);
+
         return new Promise((resolve, reject)=>{
             taskService.completeTask(completeTaskUrl, requestData)
             .then((response)=>{

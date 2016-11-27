@@ -1,3 +1,12 @@
 .DS_Store
 npm-debug.log
 source
+example
+node_modules
+test
+.babelrc
+.eslintignore
+app.js
+debug-example.js
+example-server.js
+model.conf
