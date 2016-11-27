@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <style>
+        .body {
+            margin-top: 2%;
+            margin-left: 20%;
+            margin-right: 20%;
+        }
+    </style>
+    
+    <script type="text/javaScript" src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script type="text/javaScript" src="page.js"></script>
+</head>
+
+<body>
+    <input type="button" value="create instance" id="btnCreateInstance"/>
+    <input type="button" value="Complete task" id="btnCompleteTask"/>
+    <script>
+        $(document).ready(function(){
+            var obj = new Page();
+        })
+    </script>
+</body>
+
+</html>
