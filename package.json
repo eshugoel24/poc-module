@@ -1,16 +1,17 @@
 {
   "name": "poc-module",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A npm module sample with test case and examples",
   "engines": {
     "node": ">=6.0.0"
   },
-  "main": "app.js",
+  "main": "./distribution/index.js",
   "scripts": {
     "test": "mocha --reporter spec",
     "debug-test": "mocha --debug-brk",
     "lint": "./node_modules/.bin/eslint .",
     "build": "babel source --out-dir distribution",
+    "prepublish": "npm run build",
     "dev": "babel-node app.js",
     "example": "babel-node example-server.js"
   },

@@ -1,5 +1,5 @@
 "use strict";
 
-import app from "./source/index";
+import app from "./main";
 
 export default app;
