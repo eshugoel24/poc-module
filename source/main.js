@@ -5,6 +5,7 @@ import url from 'Url';
 import config from './config';
 import modelInstaller from './model-installer';
 import instanceManager from './instance-manager';
+import taskService from "./task-service";
 
 class Main{
     constructor(){
@@ -20,7 +21,7 @@ class Main{
         **Check that model is deployed or not by checking its modelName property
         */
         if(modelInstaller.checkModelDeployed()){
-            console.log("Return already deployed data");
+            console.log("Model is already deployed");
             return new Promise((resolve, reject)=>{
                 return resolve(modelInstaller.getDeployedModelResponse());
             });
@@ -32,11 +33,9 @@ class Main{
             throw new Error('Deploy Url can not be empty.');
         
         let deployUrl = url.resolve(config.CONFIG_SERVICE_URL,config.CONFIG_DEPLOY_PATH);
-        console.log("DEploy inside main");
         return new Promise((resolve, reject)=>{
             modelInstaller.deployModel(config.CONFIG_MODEL_FILE, deployUrl)
             .then(response=>{
-                console.log("deployed and response is "+JSON.stringify(response));
                 return resolve(response);
             })
             .catch(error=>{
@@ -60,20 +59,42 @@ class Main{
         
         let createInstancePath = config.CONFIG_CREATE_INSTANCE+"/"+modelInstaller.getModelName();
 
-        if(instanceId !== '')
-            createInstancePath = config.CONFIG_CREATE_INSTANCE+"/"+instanceId;
+        if(instanceId !== ''){
+            //createInstancePath = config.CONFIG_CREATE_INSTANCE+"/"+instanceId;
+            return new Promise((resolve, reject)=>{
+                return resolve(parseInt(instanceId));
+            });
+        }
+            
         
         let createInstanceUrl = url.resolve(config.CONFIG_SERVICE_URL, createInstancePath);
-        console.log("start a new instance. instanceId = "+instanceId+"   createInstanceUrl = "+createInstanceUrl);
         return new Promise((resolve, reject)=>{
             instanceManager.createInstance(instanceId, createInstanceUrl)
             .then(response=>{
-                console.log("instance created and response id "+JSON.stringify(response));
+                console.log("instance created and response id "+response.result.modelInstanceId);
                 return resolve(response.result.modelInstanceId);
             })
             .catch(error=>{
                 return reject(error);
             });
+        });
+    }
+
+    completeTask(instanceId, requestData){
+        if(!requestData.task || requestData.task == "")
+            throw new Error('Task name cant be empty.');
+        let instancePath = "/instance/"+instanceId;
+        let completeTaskUrl = url.resolve(config.CONFIG_SERVICE_URL, instancePath);
+        console.log("Complete task URL is "+completeTaskUrl);
+        return new Promise((resolve, reject)=>{
+            taskService.completeTask(completeTaskUrl, requestData)
+            .then((response)=>{
+                console.log("Successfully complete the task ");
+                return resolve(response);
+            })
+            .catch((err)=>{
+                return reject(err);
+            })
         });
     }
 }

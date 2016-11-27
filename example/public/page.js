@@ -17,6 +17,24 @@ Page.prototype = (function(){
                     }
                 })
             });
+
+            $("#btnCompleteTask").unbind("click").bind("click", function(){
+                $.ajax({
+                    type: "POST",
+                    url:"http://localhost:3000/complete",
+                    data: {
+                        "amountToTransfer": 1,
+                        "sourceAccountNumber": 2,
+                        "targetAccountNumber": 3
+                    },
+                    success: function(response){
+                        console.log("successfully complete the task");
+                    },
+                    error: function(err){
+                        console.log("erro in completing the task");
+                    }
+                })
+            });
         }
     }
 })();

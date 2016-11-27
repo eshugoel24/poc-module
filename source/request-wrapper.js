@@ -18,12 +18,25 @@ export default class RequestWrapper{
     }
 
     post(url, options){
-        console.log("Inside request wrapper, url is "+url+"----------and options are "+JSON.stringify(options));
         return new Promise((resolve, reject) => {
             rest.post(url, options)
             .on('complete', (response) => {
-                console.log("response of a post request "+JSON.stringify(response));
                 return resolve(response);
+            });
+        });
+    }
+
+    patch(url, options){
+        return new Promise((resolve, reject) => {
+            rest.patch(url, options)
+            .on('complete', (response) => {
+                return resolve(response);
+            })
+            .on("error", (err, response)=>{
+                return reject(err);
+            })
+            .on("timeout",(ms)=>{
+                return reject({"msg": "Time out"});
             });
         });
     }
